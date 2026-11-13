@@ -14,6 +14,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [unit, setUnit] = useState("metric"); // 'metric' | 'imperial'
 
   // Dipakai oleh event handler (Search, Refresh, klik tombol Lokasi Saya)
   const loadWeather = useCallback(async (locationQuery) => {
@@ -127,6 +128,30 @@ export default function App() {
                 Riwayat 24 Jam & Prakiraan Cuaca
               </p>
             </div>
+            <div className="inline-flex p-1 rounded-xl bg-slate-900 border border-slate-800">
+              <button
+                type="button"
+                onClick={() => setUnit("metric")}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  unit === "metric"
+                    ? "bg-sky-500 text-slate-950"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                °C, km/h
+              </button>
+              <button
+                type="button"
+                onClick={() => setUnit("imperial")}
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  unit === "imperial"
+                    ? "bg-sky-500 text-slate-950"
+                    : "text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                °F, mph
+              </button>
+            </div>
           </div>
         </header>
 
@@ -163,11 +188,13 @@ export default function App() {
                 resolvedAddress={weatherData.resolvedAddress}
                 current={weatherData.current}
                 lastUpdated={lastUpdated}
+                unit={unit}
               />
 
               <HourlyTimeline
                 past24Hours={weatherData.past24Hours}
                 next24Hours={weatherData.next24Hours}
+                unit={unit}
               />
             </main>
           )

@@ -2,8 +2,9 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Umbrella } from "lucide-react";
 import WeatherIcon from "./WeatherIcon";
+import { formatTemp } from "../utils/unitConverter";
 
-export default function HourlyTimeline({ past24Hours, next24Hours }) {
+export default function HourlyTimeline({ past24Hours, next24Hours, unit }) {
   const [activeTab, setActiveTab] = useState("next"); // 'past' | 'next'
 
   const items = activeTab === "next" ? next24Hours : past24Hours;
@@ -62,7 +63,7 @@ export default function HourlyTimeline({ past24Hours, next24Hours }) {
                 <WeatherIcon icon={hour.icon} className="w-8 h-8" />
               </div>
               <span className="text-base font-bold text-white">
-                {hour.temp}°C
+                {formatTemp(hour.temp, unit)}
               </span>
               <span className="mt-1.5 flex items-center gap-1 text-[11px] text-sky-400">
                 <Umbrella className="w-3 h-3" />

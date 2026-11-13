@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
 import { Wind, Umbrella, Droplets, Clock } from "lucide-react";
 import WeatherIcon from "./WeatherIcon";
+import { formatTemp, formatWind } from "../utils/unitConverter";
 
 export default function CurrentWeather({
   resolvedAddress,
   current,
   lastUpdated,
+  unit,
 }) {
   const formattedTime = lastUpdated
     ? lastUpdated.toLocaleTimeString("id-ID", {
@@ -44,12 +46,12 @@ export default function CurrentWeather({
           </div>
           <div>
             <div className="text-5xl sm:text-6xl font-extrabold text-white tracking-tight">
-              {current.temp}°C
+              {formatTemp(current.temp, unit)}
             </div>
             <p className="text-sm text-slate-400 mt-1">
               Terasa seperti{" "}
               <span className="text-slate-200 font-medium">
-                {current.feelslike}°C
+                {formatTemp(current.feelslike, unit)}
               </span>
             </p>
           </div>
@@ -63,7 +65,7 @@ export default function CurrentWeather({
               <span>Angin</span>
             </div>
             <p className="text-lg font-bold text-slate-100">
-              {current.windspeed} km/h
+              {formatWind(current.windspeed, unit)}
             </p>
           </div>
 
