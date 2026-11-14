@@ -15,7 +15,7 @@ import {
 import { convertTemp, convertWind } from "../utils/unitConverter";
 
 const METRICS = {
-  temp: { label: "Suhu", color: "#38bdf8" },
+  temp: { label: "Suhu", color: "var(--color-sky-400)" },
   rain: { label: "Hujan", color: "#818cf8" },
   wind: { label: "Angin", color: "#34d399" },
 };
@@ -75,26 +75,30 @@ export default function HourlyChart({ past24Hours, next24Hours, unit }) {
 
   const commonAxes = (
     <>
-      <CartesianGrid strokeDasharray="3 3" stroke="#334155" vertical={false} />
+      <CartesianGrid
+        strokeDasharray="3 3"
+        stroke="var(--color-slate-700)"
+        vertical={false}
+      />
       <XAxis
         dataKey="epoch"
         interval={5}
         tickFormatter={(epoch) => labelByEpoch.get(epoch) ?? ""}
-        tick={{ fill: "#94a3b8", fontSize: 11 }}
-        axisLine={{ stroke: "#334155" }}
+        tick={{ fill: "var(--color-slate-400)", fontSize: 11 }}
+        axisLine={{ stroke: "var(--color-slate-700)" }}
         tickLine={false}
       />
       <YAxis
         width={44}
         domain={metric === "rain" ? [0, 100] : ["auto", "auto"]}
         tickFormatter={(v) => `${v}${metric === "rain" ? "%" : ""}`}
-        tick={{ fill: "#94a3b8", fontSize: 11 }}
+        tick={{ fill: "var(--color-slate-400)", fontSize: 11 }}
         axisLine={false}
         tickLine={false}
       />
       <Tooltip
         content={<ChartTooltip metric={metric} unit={unit} />}
-        cursor={{ stroke: "#475569", strokeDasharray: "3 3" }}
+        cursor={{ stroke: "var(--color-slate-600)", strokeDasharray: "3 3" }}
       />
       {nowEpoch !== undefined && (
         <ReferenceLine
