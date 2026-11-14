@@ -5,6 +5,7 @@ import SearchBar from "./components/SearchBar";
 import CurrentWeather from "./components/CurrentWeather";
 import HourlyTimeline from "./components/HourlyTimeline";
 import HourlyChart from "./components/HourlyChart";
+import { getWeatherTheme } from "./utils/weatherTheme";
 
 const DEFAULT_LOCATION = "Palembang, Indonesia";
 const STORAGE_KEY = "weather_app_last_location";
@@ -112,8 +113,16 @@ export default function App() {
     loadWeather(activeLocation);
   };
 
+  const theme =
+    isLoading || !weatherData
+      ? "neutral"
+      : getWeatherTheme(weatherData.current.icon);
+
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between px-4 py-8 sm:px-6 lg:px-8">
+    <div
+      data-theme={theme}
+      className="theme-root min-h-screen bg-slate-950 text-slate-100 flex flex-col justify-between px-4 py-8 sm:px-6 lg:px-8"
+    >
       <div className="max-w-4xl w-full mx-auto space-y-6">
         {/* Header */}
         <header className="flex items-center justify-between">

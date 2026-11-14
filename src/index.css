@@ -1,1 +1,69 @@
 @import "tailwindcss";
+
+/* Tema dinamis berdasarkan cuaca.
+   Atribut data-theme dipasang di elemen terluar App.jsx.
+   Tema "neutral" tidak punya blok: memakai palet Tailwind bawaan. */
+
+.theme-root {
+  transition: background-color 0.6s ease;
+}
+
+/* Cerah: biru langit hangat, aksen amber */
+[data-theme="sunny"] {
+  --color-slate-300: #bcd0e6;
+  --color-slate-400: #8fa9c6;
+  --color-slate-500: #6a87a8;
+  --color-slate-600: #4a6a8f;
+  --color-slate-700: #2f527d;
+  --color-slate-800: #1d3f6b;
+  --color-slate-900: #123058;
+  --color-slate-950: #0a2145;
+  --color-sky-300: #fcd34d;
+  --color-sky-400: #fbbf24;
+  --color-sky-500: #f59e0b;
+}
+
+/* Malam: biru tua keunguan, aksen indigo */
+[data-theme="night"] {
+  --color-slate-300: #c4c1e0;
+  --color-slate-400: #9a97c4;
+  --color-slate-500: #7673a6;
+  --color-slate-600: #55528a;
+  --color-slate-700: #3b3873;
+  --color-slate-800: #28265c;
+  --color-slate-900: #1a1846;
+  --color-slate-950: #0f0e2e;
+  --color-sky-300: #c7d2fe;
+  --color-sky-400: #a5b4fc;
+  --color-sky-500: #818cf8;
+}
+
+/* Berawan: abu-abu kebiruan, aksen biru lembut */
+[data-theme="cloudy"] {
+  --color-slate-300: #cbd2db;
+  --color-slate-400: #9aa5b3;
+  --color-slate-500: #75818f;
+  --color-slate-600: #566170;
+  --color-slate-700: #3f4a58;
+  --color-slate-800: #2d3743;
+  --color-slate-900: #202831;
+  --color-slate-950: #141a21;
+  --color-sky-300: #bfdbfe;
+  --color-sky-400: #93c5fd;
+  --color-sky-500: #60a5fa;
+}
+
+/* Hujan: abu kebiruan gelap, aksen cyan */
+[data-theme="rain"] {
+  --color-slate-300: #b6c6d4;
+  --color-slate-400: #86a0b4;
+  --color-slate-500: #5f7d94;
+  --color-slate-600: #436278;
+  --color-slate-700: #2e4b60;
+  --color-slate-800: #1f3a4d;
+  --color-slate-900: #152b3b;
+  --color-slate-950: #0c1c28;
+  --color-sky-300: #a5f3fc;
+  --color-sky-400: #67e8f9;
+  --color-sky-500: #22d3ee;
+}
