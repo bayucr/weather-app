@@ -11,3 +11,13 @@ export function formatWind(speedKmh, unit) {
   }
   return `${Math.round(speedKmh)} km/h`;
 }
+
+export function convertTemp(tempC, unit) {
+  const value = unit === "imperial" ? (tempC * 9) / 5 + 32 : tempC;
+  return Math.round(value);
+}
+
+export function convertWind(speedKmh, unit) {
+  const value = unit === "imperial" ? speedKmh * 0.621371 : speedKmh;
+  return Math.round(value);
+}

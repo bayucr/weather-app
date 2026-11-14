@@ -4,6 +4,7 @@ import { fetchWeatherData } from "./services/weatherApi";
 import SearchBar from "./components/SearchBar";
 import CurrentWeather from "./components/CurrentWeather";
 import HourlyTimeline from "./components/HourlyTimeline";
+import HourlyChart from "./components/HourlyChart";
 
 const DEFAULT_LOCATION = "Palembang, Indonesia";
 const STORAGE_KEY = "weather_app_last_location";
@@ -192,6 +193,12 @@ export default function App() {
               />
 
               <HourlyTimeline
+                past24Hours={weatherData.past24Hours}
+                next24Hours={weatherData.next24Hours}
+                unit={unit}
+              />
+
+              <HourlyChart
                 past24Hours={weatherData.past24Hours}
                 next24Hours={weatherData.next24Hours}
                 unit={unit}
