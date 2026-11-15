@@ -9,6 +9,7 @@ import { getWeatherTheme } from "./utils/weatherTheme";
 
 const DEFAULT_LOCATION = "Palembang, Indonesia";
 const STORAGE_KEY = "weather_app_last_location";
+const UNIT_KEY = "weather_app_unit";
 
 export default function App() {
   const [activeLocation, setActiveLocation] = useState("");
@@ -16,7 +17,22 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
-  const [unit, setUnit] = useState("metric"); // 'metric' | 'imperial'
+  const [unit, setUnit] = useState(() => {
+    try {
+      const saved = localStorage.getItem(UNIT_KEY);
+      return saved === "imperial" ? "imperial" : "metric";
+    } catch {
+      return "metric";
+    }
+  }); // 'metric' | 'imperial'
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(UNIT_KEY, unit);
+    } catch {
+      // abaikan jika penyimpanan tidak tersedia
+    }
+  }, [unit]);
 
   // Dipakai oleh event handler (Search, Refresh, klik tombol Lokasi Saya)
   const loadWeather = useCallback(async (locationQuery) => {
