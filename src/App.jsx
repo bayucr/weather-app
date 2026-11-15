@@ -5,6 +5,7 @@ import SearchBar from "./components/SearchBar";
 import CurrentWeather from "./components/CurrentWeather";
 import HourlyTimeline from "./components/HourlyTimeline";
 import HourlyChart from "./components/HourlyChart";
+import DailyForecast from "./components/DailyForecast";
 import { getWeatherTheme } from "./utils/weatherTheme";
 
 const DEFAULT_LOCATION = "Palembang, Indonesia";
@@ -222,6 +223,8 @@ export default function App() {
                 next24Hours={weatherData.next24Hours}
                 unit={unit}
               />
+
+              <DailyForecast daily={weatherData.daily} unit={unit} />
 
               <HourlyChart
                 past24Hours={weatherData.past24Hours}

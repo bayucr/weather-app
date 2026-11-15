@@ -7,10 +7,10 @@ export async function fetchWeatherData(location) {
     throw new Error("Masukkan nama kota atau koordinat terlebih dahulu.");
   }
 
-  // Menggunakan parameter dinamis /yesterday/tomorrow untuk mengambil rentang 3 hari (72 jam)
+  // Rentang /yesterday/next7days: kemarin untuk riwayat 24 jam, lalu hari ini dan 7 hari ke depan untuk prakiraan harian
   const url = `${BASE_URL}/${encodeURIComponent(
     cleanLocation,
-  )}/yesterday/tomorrow?unitGroup=metric&include=days,hours,current&contentType=json`;
+  )}/yesterday/next7days?unitGroup=metric&include=days,hours,current&contentType=json`;
 
   const response = await fetch(url);
 
@@ -68,6 +68,17 @@ function normalizeWeatherData(data) {
     )
     .slice(0, 24);
 
+  // Prakiraan harian: dari hari ini (indeks 1, setelah kemarin) maksimal 7 hari
+  const daily = (data.days || []).slice(1, 8).map((day) => ({
+    date: day.datetime,
+    datetimeEpoch: day.datetimeEpoch,
+    tempmax: Math.round(day.tempmax ?? day.temp ?? 0),
+    tempmin: Math.round(day.tempmin ?? day.temp ?? 0),
+    precipprob: Math.round(day.precipprob ?? 0),
+    conditions: day.conditions,
+    icon: day.icon,
+  }));
+
   return {
     resolvedAddress: data.resolvedAddress,
     timezone: data.timezone,
@@ -83,5 +94,6 @@ function normalizeWeatherData(data) {
     },
     past24Hours,
     next24Hours,
+    daily,
   };
 }
