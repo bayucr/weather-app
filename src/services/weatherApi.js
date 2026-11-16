@@ -1,7 +1,7 @@
 const BASE_URL =
   "https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline";
 
-export async function fetchWeatherData(location) {
+export async function fetchWeatherData(location, signal) {
   const cleanLocation = location.trim();
   if (!cleanLocation) {
     throw new Error("Masukkan nama kota atau koordinat terlebih dahulu.");
@@ -12,7 +12,7 @@ export async function fetchWeatherData(location) {
     cleanLocation,
   )}/yesterday/next7days?unitGroup=metric&include=days,hours,current&contentType=json`;
 
-  const response = await fetch(url);
+  const response = await fetch(url, { signal });
 
   if (!response.ok) {
     if (response.status === 400) {

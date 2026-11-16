@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { CloudSun, AlertCircle } from "lucide-react";
 import { fetchWeatherData } from "./services/weatherApi";
 import SearchBar from "./components/SearchBar";
@@ -36,20 +36,28 @@ export default function App() {
   }, [unit]);
 
   // Dipakai oleh event handler (Search, Refresh, klik tombol Lokasi Saya)
+  const abortRef = useRef(null);
+
   const loadWeather = useCallback(async (locationQuery) => {
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsLoading(true);
     setError(null);
 
     try {
-      const data = await fetchWeatherData(locationQuery);
+      const data = await fetchWeatherData(locationQuery, controller.signal);
+      if (controller.signal.aborted) return;
       setWeatherData(data);
       setActiveLocation(locationQuery);
       setLastUpdated(new Date());
       localStorage.setItem(STORAGE_KEY, locationQuery);
     } catch (err) {
+      if (err.name === "AbortError" || controller.signal.aborted) return;
       setError(err.message || "Gagal memuat data cuaca.");
     } finally {
-      setIsLoading(false);
+      if (abortRef.current === controller) setIsLoading(false);
     }
   }, []);
 
@@ -58,18 +66,21 @@ export default function App() {
     let ignore = false;
 
     const loadInitialWeather = async (locationQuery) => {
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       try {
-        const data = await fetchWeatherData(locationQuery);
-        if (ignore) return;
+        const data = await fetchWeatherData(locationQuery, controller.signal);
+        if (ignore || controller.signal.aborted) return;
         setWeatherData(data);
         setActiveLocation(locationQuery);
         setLastUpdated(new Date());
         localStorage.setItem(STORAGE_KEY, locationQuery);
       } catch (err) {
-        if (ignore) return;
+        if (ignore || controller.signal.aborted) return;
         setError(err.message || "Gagal memuat data cuaca.");
       } finally {
-        if (!ignore) setIsLoading(false);
+        if (!ignore && abortRef.current === controller) setIsLoading(false);
       }
     };
 
@@ -85,12 +96,12 @@ export default function App() {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        if (ignore) return;
+        if (ignore || abortRef.current) return;
         const { latitude, longitude } = position.coords;
         loadInitialWeather(`${latitude.toFixed(4)},${longitude.toFixed(4)}`);
       },
       () => {
-        if (ignore) return;
+        if (ignore || abortRef.current) return;
         loadInitialWeather(fallbackLocation);
       },
       { timeout: 6000 },
