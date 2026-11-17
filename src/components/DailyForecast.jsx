@@ -3,6 +3,8 @@ import { Umbrella } from "lucide-react";
 import WeatherIcon from "./WeatherIcon";
 import { formatTemp } from "../utils/unitConverter";
 
+const formatPercent = (v) => (Number.isFinite(v) ? `${Math.round(v)}%` : "-");
+
 function formatDayName(dateString, index) {
   if (index === 0) return "Hari ini";
   const date = new Date(`${dateString}T00:00:00`);
@@ -54,7 +56,7 @@ export default function DailyForecast({ daily, unit }) {
 
               <span className="ml-auto sm:ml-0 flex items-center gap-1 text-xs text-sky-400 w-12 flex-shrink-0">
                 <Umbrella className="w-3 h-3" />
-                {day.precipprob}%
+                {formatPercent(day.precipprob)}
               </span>
 
               <div className="flex items-center gap-2 text-sm w-24 sm:w-28 justify-end flex-shrink-0">

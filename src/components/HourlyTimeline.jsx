@@ -4,6 +4,8 @@ import { Umbrella } from "lucide-react";
 import WeatherIcon from "./WeatherIcon";
 import { formatTemp } from "../utils/unitConverter";
 
+const formatPercent = (v) => (Number.isFinite(v) ? `${Math.round(v)}%` : "-");
+
 export default function HourlyTimeline({ past24Hours, next24Hours, unit }) {
   const [activeTab, setActiveTab] = useState("next"); // 'past' | 'next'
 
@@ -67,7 +69,7 @@ export default function HourlyTimeline({ past24Hours, next24Hours, unit }) {
               </span>
               <span className="mt-1.5 flex items-center gap-1 text-[11px] text-sky-400">
                 <Umbrella className="w-3 h-3" />
-                {Math.round(hour.precipprob)}%
+                {formatPercent(hour.precipprob)}
               </span>
             </div>
           ))}

@@ -3,6 +3,8 @@ import { Wind, Umbrella, Droplets, Clock } from "lucide-react";
 import WeatherIcon from "./WeatherIcon";
 import { formatTemp, formatWind } from "../utils/unitConverter";
 
+const formatPercent = (v) => (Number.isFinite(v) ? `${v}%` : "-");
+
 export default function CurrentWeather({
   resolvedAddress,
   current,
@@ -75,7 +77,7 @@ export default function CurrentWeather({
               <span>Hujan</span>
             </div>
             <p className="text-lg font-bold text-slate-100">
-              {current.precipprob}%
+              {formatPercent(current.precipprob)}
             </p>
           </div>
 
@@ -85,7 +87,7 @@ export default function CurrentWeather({
               <span>Kelembapan</span>
             </div>
             <p className="text-lg font-bold text-slate-100">
-              {current.humidity}%
+              {formatPercent(current.humidity)}
             </p>
           </div>
         </div>

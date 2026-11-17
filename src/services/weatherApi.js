@@ -12,15 +12,37 @@ export async function fetchWeatherData(location, signal) {
     cleanLocation,
   )}/yesterday/next7days?unitGroup=metric&include=days,hours,current&contentType=json`;
 
-  const response = await fetch(url, { signal });
+  let response;
+  try {
+    response = await fetch(url, { signal });
+  } catch (err) {
+    if (err.name === "AbortError") throw err;
+    throw new Error(
+      "Tidak dapat terhubung ke server cuaca. Periksa koneksi internet kamu lalu coba lagi.",
+      { cause: err },
+    );
+  }
 
   if (!response.ok) {
     if (response.status === 400) {
       throw new Error("Lokasi tidak ditemukan. Coba periksa ejaan nama kota.");
     }
+    if (response.status === 401 || response.status === 403) {
+      throw new Error(
+        "Akses ke layanan cuaca ditolak. Periksa konfigurasi akses API.",
+      );
+    }
+    if (response.status === 404) {
+      throw new Error("Layanan cuaca tidak ditemukan. Coba lagi nanti.");
+    }
     if (response.status === 429) {
       throw new Error(
         "Batas akses API gratis sementara tercapai. Coba lagi nanti.",
+      );
+    }
+    if (response.status >= 500) {
+      throw new Error(
+        "Server cuaca sedang bermasalah. Coba lagi beberapa saat lagi.",
       );
     }
     throw new Error(
@@ -30,6 +52,13 @@ export async function fetchWeatherData(location, signal) {
 
   const data = await response.json();
   return normalizeWeatherData(data);
+}
+
+// Mengembalikan null (bukan 0) kalau nilai kosong atau bukan angka
+function roundOrNull(value) {
+  if (value === null || value === undefined) return null;
+  const num = Number(value);
+  return Number.isFinite(num) ? Math.round(num) : null;
 }
 
 function normalizeWeatherData(data) {
@@ -43,9 +72,9 @@ function normalizeWeatherData(data) {
       datetime: hour.datetime.slice(0, 5), // Format "14:00:00" -> "14:00"
       datetimeEpoch: hour.datetimeEpoch,
       date: day.datetime,
-      temp: Math.round(hour.temp),
-      windspeed: hour.windspeed,
-      precipprob: hour.precipprob ?? 0,
+      temp: roundOrNull(hour.temp),
+      windspeed: hour.windspeed ?? null,
+      precipprob: roundOrNull(hour.precipprob),
       conditions: hour.conditions,
       icon: hour.icon,
     })),
@@ -72,9 +101,9 @@ function normalizeWeatherData(data) {
   const daily = (data.days || []).slice(1, 8).map((day) => ({
     date: day.datetime,
     datetimeEpoch: day.datetimeEpoch,
-    tempmax: Math.round(day.tempmax ?? day.temp ?? 0),
-    tempmin: Math.round(day.tempmin ?? day.temp ?? 0),
-    precipprob: Math.round(day.precipprob ?? 0),
+    tempmax: roundOrNull(day.tempmax ?? day.temp),
+    tempmin: roundOrNull(day.tempmin ?? day.temp),
+    precipprob: roundOrNull(day.precipprob),
     conditions: day.conditions,
     icon: day.icon,
   }));
@@ -83,11 +112,11 @@ function normalizeWeatherData(data) {
     resolvedAddress: data.resolvedAddress,
     timezone: data.timezone,
     current: {
-      temp: Math.round(current.temp ?? 0),
-      feelslike: Math.round(current.feelslike ?? current.temp ?? 0),
-      windspeed: current.windspeed ?? 0,
-      precipprob: current.precipprob ?? 0,
-      humidity: Math.round(current.humidity ?? 0),
+      temp: roundOrNull(current.temp),
+      feelslike: roundOrNull(current.feelslike ?? current.temp),
+      windspeed: current.windspeed ?? null,
+      precipprob: roundOrNull(current.precipprob),
+      humidity: roundOrNull(current.humidity),
       conditions: current.conditions || "Tidak diketahui",
       icon: current.icon || "partly-cloudy-day",
       datetime: current.datetime?.slice(0, 5) || "",

@@ -36,8 +36,10 @@ function ChartTooltip({ active, payload, metric, unit }) {
         {point.date}{" \u2022 "}{point.label}
       </p>
       <p className="mt-1 font-semibold text-white">
-        {METRICS[metric].label}: {point.value}
-        {getUnitLabel(metric, unit)}
+        {METRICS[metric].label}:{" "}
+        {Number.isFinite(point.value)
+          ? `${point.value}${getUnitLabel(metric, unit)}`
+          : "-"}
       </p>
       <p className="mt-0.5 text-slate-400">{point.conditions}</p>
     </div>
@@ -53,8 +55,11 @@ export default function HourlyChart({ past24Hours, next24Hours, unit }) {
     return [...past24Hours, ...next24Hours].map((hour) => {
       let value;
       if (metric === "temp") value = convertTemp(hour.temp, unit);
-      else if (metric === "rain") value = Math.round(hour.precipprob);
-      else value = convertWind(hour.windspeed ?? 0, unit);
+      else if (metric === "rain")
+        value = Number.isFinite(hour.precipprob)
+          ? Math.round(hour.precipprob)
+          : null;
+      else value = convertWind(hour.windspeed, unit);
 
       return {
         epoch: hour.datetimeEpoch,
