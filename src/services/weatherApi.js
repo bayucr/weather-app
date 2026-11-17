@@ -61,16 +61,29 @@ function roundOrNull(value) {
   return Number.isFinite(num) ? Math.round(num) : null;
 }
 
+// Hitung epoch (detik) dari tanggal "YYYY-MM-DD", jam "HH:MM:SS", dan tzoffset (jam)
+function toEpoch(dateStr, timeStr, tzoffset) {
+  if (!dateStr || !timeStr) return null;
+  const [y, mo, d] = dateStr.split("-").map(Number);
+  const [h, mi, s] = timeStr.split(":").map(Number);
+  const utcSeconds = Date.UTC(y, mo - 1, d, h, mi, s || 0) / 1000;
+  return utcSeconds - (tzoffset || 0) * 3600;
+}
+
 function normalizeWeatherData(data) {
+  const tz = data.tzoffset ?? 0;
   const current = data.currentConditions || data.days?.[1] || {};
-  const nowEpoch = current.datetimeEpoch ?? Math.floor(Date.now() / 1000);
+  const nowEpoch =
+    current.datetimeEpoch ??
+    toEpoch(data.days?.[1]?.datetime, current.datetime, tz) ??
+    Math.floor(Date.now() / 1000);
   const TWENTY_FOUR_HOURS = 24 * 60 * 60; // 86400 detik
 
   // Gabungkan semua array `hours` dari kemarin, hari ini, dan besok
   const allHours = (data.days || []).flatMap((day) =>
     (day.hours || []).map((hour) => ({
       datetime: hour.datetime.slice(0, 5), // Format "14:00:00" -> "14:00"
-      datetimeEpoch: hour.datetimeEpoch,
+      datetimeEpoch: hour.datetimeEpoch ?? toEpoch(day.datetime, hour.datetime, tz),
       date: day.datetime,
       temp: roundOrNull(hour.temp),
       windspeed: hour.windspeed ?? null,
@@ -100,7 +113,7 @@ function normalizeWeatherData(data) {
   // Prakiraan harian: dari hari ini (indeks 1, setelah kemarin) maksimal 7 hari
   const daily = (data.days || []).slice(1, 8).map((day) => ({
     date: day.datetime,
-    datetimeEpoch: day.datetimeEpoch,
+    datetimeEpoch: day.datetimeEpoch ?? toEpoch(day.datetime, "00:00:00", tz),
     tempmax: roundOrNull(day.tempmax ?? day.temp),
     tempmin: roundOrNull(day.tempmin ?? day.temp),
     precipprob: roundOrNull(day.precipprob),
