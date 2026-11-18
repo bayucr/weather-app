@@ -11,6 +11,7 @@ import { getWeatherTheme } from "./utils/weatherTheme";
 const DEFAULT_LOCATION = "Palembang, Indonesia";
 const STORAGE_KEY = "weather_app_last_location";
 const UNIT_KEY = "weather_app_unit";
+const NAME_KEY = "weather_app_last_location_name";
 
 export default function App() {
   const [activeLocation, setActiveLocation] = useState("");
@@ -18,6 +19,7 @@ export default function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [lastUpdated, setLastUpdated] = useState(null);
+  const [displayName, setDisplayName] = useState(null);
   const [unit, setUnit] = useState(() => {
     try {
       const saved = localStorage.getItem(UNIT_KEY);
@@ -38,7 +40,7 @@ export default function App() {
   // Dipakai oleh event handler (Search, Refresh, klik tombol Lokasi Saya)
   const abortRef = useRef(null);
 
-  const loadWeather = useCallback(async (locationQuery) => {
+  const loadWeather = useCallback(async (locationQuery, name = null) => {
     abortRef.current?.abort();
     const controller = new AbortController();
     abortRef.current = controller;
@@ -51,8 +53,11 @@ export default function App() {
       if (controller.signal.aborted) return;
       setWeatherData(data);
       setActiveLocation(locationQuery);
+      setDisplayName(name);
       setLastUpdated(new Date());
       localStorage.setItem(STORAGE_KEY, locationQuery);
+      if (name) localStorage.setItem(NAME_KEY, name);
+      else localStorage.removeItem(NAME_KEY);
     } catch (err) {
       if (err.name === "AbortError" || controller.signal.aborted) return;
       setError(err.message || "Gagal memuat data cuaca.");
@@ -72,10 +77,16 @@ export default function App() {
       try {
         const data = await fetchWeatherData(locationQuery, controller.signal);
         if (ignore || controller.signal.aborted) return;
+        const savedName =
+          localStorage.getItem(STORAGE_KEY) === locationQuery
+            ? localStorage.getItem(NAME_KEY)
+            : null;
         setWeatherData(data);
         setActiveLocation(locationQuery);
+        setDisplayName(savedName);
         setLastUpdated(new Date());
         localStorage.setItem(STORAGE_KEY, locationQuery);
+        if (!savedName) localStorage.removeItem(NAME_KEY);
       } catch (err) {
         if (ignore || controller.signal.aborted) return;
         setError(err.message || "Gagal memuat data cuaca.");
@@ -138,7 +149,7 @@ export default function App() {
 
   const handleRefresh = () => {
     if (!activeLocation || isLoading) return;
-    loadWeather(activeLocation);
+    loadWeather(activeLocation, displayName);
   };
 
   const theme =
@@ -223,7 +234,7 @@ export default function App() {
           weatherData && (
             <main className="space-y-6">
               <CurrentWeather
-                resolvedAddress={weatherData.resolvedAddress}
+                resolvedAddress={displayName || weatherData.resolvedAddress}
                 current={weatherData.current}
                 lastUpdated={lastUpdated}
                 unit={unit}
