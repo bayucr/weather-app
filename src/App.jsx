@@ -1,12 +1,21 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  useRef,
+  lazy,
+  Suspense,
+} from "react";
 import { CloudSun, AlertCircle } from "lucide-react";
 import { fetchWeatherData } from "./services/weatherApi";
 import SearchBar from "./components/SearchBar";
 import CurrentWeather from "./components/CurrentWeather";
 import HourlyTimeline from "./components/HourlyTimeline";
-import HourlyChart from "./components/HourlyChart";
 import DailyForecast from "./components/DailyForecast";
 import { getWeatherTheme } from "./utils/weatherTheme";
+
+// Grafik (Recharts) dimuat terpisah agar bundle awal lebih ringan
+const HourlyChart = lazy(() => import("./components/HourlyChart"));
 
 const DEFAULT_LOCATION = "Palembang, Indonesia";
 const STORAGE_KEY = "weather_app_last_location";
@@ -248,11 +257,17 @@ export default function App() {
 
               <DailyForecast daily={weatherData.daily} unit={unit} />
 
-              <HourlyChart
-                past24Hours={weatherData.past24Hours}
-                next24Hours={weatherData.next24Hours}
-                unit={unit}
-              />
+              <Suspense
+                fallback={
+                  <div className="h-96 rounded-2xl bg-slate-800/70 border border-slate-800 animate-pulse" />
+                }
+              >
+                <HourlyChart
+                  past24Hours={weatherData.past24Hours}
+                  next24Hours={weatherData.next24Hours}
+                  unit={unit}
+                />
+              </Suspense>
             </main>
           )
         )}
