@@ -12,6 +12,7 @@ import SearchBar from "./components/SearchBar";
 import CurrentWeather from "./components/CurrentWeather";
 import HourlyTimeline from "./components/HourlyTimeline";
 import DailyForecast from "./components/DailyForecast";
+import AlertBanner from "./components/AlertBanner";
 import { getWeatherTheme } from "./utils/weatherTheme";
 
 // Grafik (Recharts) dimuat terpisah agar bundle awal lebih ringan
@@ -242,6 +243,11 @@ export default function App() {
         ) : (
           weatherData && (
             <main className="space-y-6">
+              <AlertBanner
+                next24Hours={weatherData.next24Hours}
+                unit={unit}
+              />
+
               <CurrentWeather
                 resolvedAddress={displayName || weatherData.resolvedAddress}
                 current={weatherData.current}
