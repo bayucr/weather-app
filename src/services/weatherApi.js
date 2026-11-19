@@ -70,7 +70,7 @@ function toEpoch(dateStr, timeStr, tzoffset) {
   return utcSeconds - (tzoffset || 0) * 3600;
 }
 
-function normalizeWeatherData(data) {
+export function normalizeWeatherData(data) {
   const tz = data.tzoffset ?? 0;
   const current = data.currentConditions || data.days?.[1] || {};
   const nowEpoch =
